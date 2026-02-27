@@ -28,8 +28,9 @@ class SentryPlugin : Plugin<Project> {
             apply(libs.findPlugin("sentry").get().get().pluginId)
         }
 
-        val sentryDsn = readSentryValueOf(propertyKey = SENTRY_DSN_PROPERTY, envKey = SENTRY_DSN_ENV)
-        val sentryAuthToken = readSentryValueOf(propertyKey = SENTRY_AUTH_TOKEN_PROPERTY, envKey = SENTRY_AUTH_TOKEN_ENV)
+        // Read values with blank check – empty strings are treated as missing
+        val sentryDsn = readSentryValueOf(propertyKey = SENTRY_DSN_PROPERTY, envKey = SENTRY_DSN_ENV, required = false)
+        val sentryAuthToken = readSentryValueOf(propertyKey = SENTRY_AUTH_TOKEN_PROPERTY, envKey = SENTRY_AUTH_TOKEN_ENV, required = true)
 
         extensions.configure<ApplicationAndroidComponentsExtension> {
             onVariants { variant ->
@@ -51,24 +52,37 @@ class SentryPlugin : Plugin<Project> {
         }
     }
 
-    // take from ENV to allow builds in CI
-    // otherwise read from sentry.properties
+    /**
+     * Reads a value from environment variable or sentry.properties.
+     * @param required if true and the final value is blank, throws an error.
+     */
     private fun Project.readSentryValueOf(
         propertyKey: String,
         envKey: String,
-        default: String? = null
-    ): String = providers.environmentVariable(envKey).orNull ?: readSentrySecret(key = propertyKey, default = default)
+        required: Boolean = false
+    ): String? {
+        // 1. Try environment variable (ignore blank)
+        val envValue = providers.environmentVariable(envKey).orNull?.takeIf { it.isNotBlank() }
+        if (envValue != null) return envValue
 
-    private fun Project.readSentrySecret(
-        key: String,
-        default: String?
-    ): String {
+        // 2. Fallback to sentry.properties
+        val propValue = readSentrySecret(key = propertyKey)
+        if (propValue != null) return propValue
+
+        // 3. If required and still missing, error
+        if (required) {
+            error("Missing Sentry configuration: $propertyKey. Provide it via environment variable $envKey or in $SENTRY_PROPERTIES_FILE")
+        }
+        return null
+    }
+
+    private fun Project.readSentrySecret(key: String): String? {
         val secretPropertiesFile = rootProject.file(SENTRY_PROPERTIES_FILE)
-        if (secretPropertiesFile.exists().not()) {
-            return default ?: error("$SENTRY_PROPERTIES_FILE file is required for GitHub configuration")
+        if (!secretPropertiesFile.exists()) {
+            return null
         }
 
         val localProperties = Properties().apply { load(FileInputStream(secretPropertiesFile)) }
-        return localProperties[key]?.toString() ?: default ?: error("$key field is required in $SENTRY_PROPERTIES_FILE")
+        return localProperties[key]?.toString()?.takeIf { it.isNotBlank() }
     }
 }
