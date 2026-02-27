@@ -1,6 +1,6 @@
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import io.sentry.android.gradle.extensions.SentryPluginExtension
-import io.sentry.android.gradle.extensions.VariantExtension
+import io.sentry.android.gradle.extensions.SentryVariantExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -51,7 +51,7 @@ class SentryPlugin : Plugin<Project> {
             ignoredBuildTypes.set(setOf("debug"))
 
             // Disable ProGuard mapping uploads for all dev variants
-            variants.all { variant: VariantExtension ->
+            variants.all { variant: SentryVariantExtension ->
                 if (variant.name.contains("dev", ignoreCase = true)) {
                     variant.autoUploadProguardMapping.set(false)
                     logger.info("Sentry auto‑upload disabled for variant: ${variant.name}")
