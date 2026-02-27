@@ -19,9 +19,8 @@ dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.ksp.gradlePlugin)
-    compileOnly(libs.sentry.gradlePlugin)
+    implementation(libs.sentry.gradlePlugin)   // <-- changed to implementation
 }
-
 gradlePlugin {
     plugins {
         register("androidApplication") {
