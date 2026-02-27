@@ -28,9 +28,9 @@ class SentryPlugin : Plugin<Project> {
             apply(libs.findPlugin("sentry").get().get().pluginId)
         }
 
-        // Read values – auth token is required for non‑dev builds
-        val sentryDsn = readSentryValueOf(propertyKey = SENTRY_DSN_PROPERTY, envKey = SENTRY_DSN_ENV, required = false)
-        val sentryAuthToken = readSentryValueOf(propertyKey = SENTRY_AUTH_TOKEN_PROPERTY, envKey = SENTRY_AUTH_TOKEN_ENV, required = true)
+        // Read values – auth token is optional, default to empty string to avoid null
+        val sentryDsn = readSentryValueOf(propertyKey = SENTRY_DSN_PROPERTY, envKey = SENTRY_DSN_ENV, default = "")
+        val sentryAuthToken = readSentryValueOf(propertyKey = SENTRY_AUTH_TOKEN_PROPERTY, envKey = SENTRY_AUTH_TOKEN_ENV, default = "")
 
         extensions.configure<ApplicationAndroidComponentsExtension> {
             onVariants { variant ->
@@ -50,7 +50,7 @@ class SentryPlugin : Plugin<Project> {
             ignoredBuildTypes.set(setOf("debug"))
 
             // Disable ProGuard mapping uploads for all dev variants
-            variants.all { variant ->
+            variants.configureEach { variant ->
                 if (variant.name.contains("dev", ignoreCase = true)) {
                     variant.autoUploadProguardMapping.set(false)
                     logger.info("Sentry auto‑upload disabled for variant: ${variant.name}")
@@ -61,13 +61,13 @@ class SentryPlugin : Plugin<Project> {
 
     /**
      * Reads a value from environment variable or sentry.properties.
-     * @param required if true and the final value is blank, throws an error.
+     * Returns the default if no value is found.
      */
     private fun Project.readSentryValueOf(
         propertyKey: String,
         envKey: String,
-        required: Boolean = false
-    ): String? {
+        default: String
+    ): String {
         // 1. Try environment variable (ignore blank)
         val envValue = providers.environmentVariable(envKey).orNull?.takeIf { it.isNotBlank() }
         if (envValue != null) return envValue
@@ -76,11 +76,8 @@ class SentryPlugin : Plugin<Project> {
         val propValue = readSentrySecret(key = propertyKey)
         if (propValue != null) return propValue
 
-        // 3. If required and still missing, error
-        if (required) {
-            error("Missing Sentry configuration: $propertyKey. Provide it via environment variable $envKey or in $SENTRY_PROPERTIES_FILE")
-        }
-        return null
+        // 3. Return default
+        return default
     }
 
     private fun Project.readSentrySecret(key: String): String? {
