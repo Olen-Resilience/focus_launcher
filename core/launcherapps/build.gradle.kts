@@ -10,6 +10,7 @@ android {
 dependencies {
     implementation(projects.core.model)
     implementation(projects.core.data)
+    implementation(projects.core.lint)
 
     testImplementation(projects.core.testing)
 }
