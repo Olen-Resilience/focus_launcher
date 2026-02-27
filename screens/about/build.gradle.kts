@@ -7,3 +7,7 @@ plugins {
 android {
     namespace = "dev.mslalith.focuslauncher.screens.about"
 }
+
+dependencies {
+    implementation(projects.core.lint)
+}
