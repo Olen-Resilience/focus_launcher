@@ -6,6 +6,8 @@ import dev.mslalith.focuslauncher.core.data.dto.toApp
 import dev.mslalith.focuslauncher.core.data.dto.toAppRoom
 import dev.mslalith.focuslauncher.core.data.repository.AppDrawerRepo
 import dev.mslalith.focuslauncher.core.model.app.App
+import java.text.Collator
+import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -14,9 +16,24 @@ internal class AppDrawerRepoImpl @Inject constructor(
     private val appsDao: AppsDao
 ) : AppDrawerRepo {
 
+    private val collator = Collator.getInstance(Locale.getDefault()).apply {
+        strength = Collator.PRIMARY
+    }
+
     override val allAppsFlow: Flow<List<App>> = appsDao.getAllAppsFlow()
         .map { apps ->
-            apps.map(AppRoom::toApp).sortedBy { it.displayName.lowercase() }
+            apps.map(AppRoom::toApp).sortedWith { a, b ->
+                val aName = a.displayName
+                val bName = b.displayName
+                val aIsLetter = aName.firstOrNull()?.let { Character.isLetter(it) } ?: false
+                val bIsLetter = bName.firstOrNull()?.let { Character.isLetter(it) } ?: false
+                when {
+                    aIsLetter && bIsLetter -> collator.compare(aName, bName)
+                    aIsLetter && !bIsLetter -> -1
+                    !aIsLetter && bIsLetter -> 1
+                    else -> collator.compare(aName, bName)
+                }
+            }
         }
 
     override suspend fun getAppBy(packageName: String): App? {
