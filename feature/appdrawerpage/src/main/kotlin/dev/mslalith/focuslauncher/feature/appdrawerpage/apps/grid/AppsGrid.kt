@@ -38,14 +38,20 @@ internal fun AppsGrid(
 
         items(
             items = apps,
-            key = { it.uniqueKey }
+            // Stable packageName-based key: LazyVerticalGrid can reuse
+            // existing item compositions instead of recreating them on
+            // every list update (e.g., search result changes).
+            key = { it.app.packageName }
         ) { app ->
+            // animateItemPlacement removed — it forces a layout pass on every
+            // grid change including each search keystroke, which is the main
+            // cause of scroll and search lag in the grid view.
             AppDrawerGridItem(
                 appDrawerItem = app,
                 appDrawerIconViewType = appDrawerIconViewType,
                 onClick = onAppClick,
                 onLongClick = onAppLongClick,
-                modifier = Modifier.animateItemPlacement()
+                modifier = Modifier
             )
         }
 
