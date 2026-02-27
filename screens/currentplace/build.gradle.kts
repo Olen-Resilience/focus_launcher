@@ -9,5 +9,6 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.lint)
     implementation(libs.osmdroid)
 }
