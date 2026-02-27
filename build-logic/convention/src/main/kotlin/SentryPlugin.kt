@@ -1,6 +1,5 @@
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import io.sentry.android.gradle.extensions.SentryPluginExtension
-import io.sentry.android.gradle.extensions.SentryVariantExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -13,8 +12,10 @@ class SentryPlugin : Plugin<Project> {
 
     private companion object {
         private const val SENTRY_PROPERTIES_FILE = "sentry.properties"
+
         private const val SENTRY_DSN_ENV = "SENTRY_DSN"
         private const val SENTRY_DSN_PROPERTY = "sentry.dsn"
+
         private const val SENTRY_AUTH_TOKEN_ENV = "SENTRY_AUTH_TOKEN"
         private const val SENTRY_AUTH_TOKEN_PROPERTY = "sentry.auth.token"
     }
@@ -27,8 +28,8 @@ class SentryPlugin : Plugin<Project> {
             apply(libs.findPlugin("sentry").get().get().pluginId)
         }
 
-        val sentryDsn = readSentryValueOf(SENTRY_DSN_PROPERTY, SENTRY_DSN_ENV, default = "")
-        val sentryAuthToken = readSentryValueOf(SENTRY_AUTH_TOKEN_PROPERTY, SENTRY_AUTH_TOKEN_ENV, default = "")
+        val sentryDsn = readSentryValueOf(propertyKey = SENTRY_DSN_PROPERTY, envKey = SENTRY_DSN_ENV)
+        val sentryAuthToken = readSentryValueOf(propertyKey = SENTRY_AUTH_TOKEN_PROPERTY, envKey = SENTRY_AUTH_TOKEN_ENV)
 
         extensions.configure<ApplicationAndroidComponentsExtension> {
             onVariants { variant ->
@@ -42,40 +43,29 @@ class SentryPlugin : Plugin<Project> {
             projectName.set("focus-launcher")
             authToken.set(sentryAuthToken)
 
-            includeSourceContext.set(true)
-            includeProguardMapping.set(true)
+            includeSourceContext.set(false)
+            includeProguardMapping.set(false)
+            autoUploadProguardMapping.set(false)
             tracingInstrumentation.enabled.set(false)
-            ignoredBuildTypes.set(setOf("debug"))
-
-            // Disable ProGuard mapping uploads for all dev variants
-            variants.all { variant: SentryVariantExtension ->
-                if (variant.name.contains("dev", ignoreCase = true)) {
-                    variant.autoUploadProguardMapping.set(false)
-                    logger.info("Sentry auto‑upload disabled for variant: ${variant.name}")
-                }
-            }
+            ignoredBuildTypes.set(setOf("debug", "release"))
         }
     }
 
     private fun Project.readSentryValueOf(
         propertyKey: String,
         envKey: String,
-        default: String
+        default: String? = null
+    ): String = providers.environmentVariable(envKey).orNull
+        ?: readSentrySecret(key = propertyKey, default = default)
+
+    private fun Project.readSentrySecret(
+        key: String,
+        default: String?
     ): String {
-        val envValue = providers.environmentVariable(envKey).orNull?.takeIf { it.isNotBlank() }
-        if (envValue != null) return envValue
+        val secretPropertiesFile = rootProject.file(SENTRY_PROPERTIES_FILE)
+        if (!secretPropertiesFile.exists()) return default ?: ""
 
-        val propValue = readSentrySecret(propertyKey)
-        if (propValue != null) return propValue
-
-        return default
-    }
-
-    private fun Project.readSentrySecret(key: String): String? {
-        val secretFile = rootProject.file(SENTRY_PROPERTIES_FILE)
-        if (!secretFile.exists()) return null
-
-        val props = Properties().apply { load(FileInputStream(secretFile)) }
-        return props[key]?.toString()?.takeIf { it.isNotBlank() }
+        val localProperties = Properties().apply { load(FileInputStream(secretPropertiesFile)) }
+        return localProperties[key]?.toString() ?: default ?: ""
     }
 }
