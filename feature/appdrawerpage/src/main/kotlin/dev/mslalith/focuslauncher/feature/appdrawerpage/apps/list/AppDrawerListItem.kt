@@ -13,9 +13,12 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.graphics.drawable.toBitmap
@@ -33,59 +36,69 @@ internal fun AppDrawerListItem(
     appDrawerItem: AppDrawerItem,
     appDrawerIconViewType: AppDrawerIconViewType,
     onClick: (AppDrawerItem) -> Unit,
-    onLongClick: (AppDrawerItem) -> Unit
+    onLongClick: (AppDrawerItem) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val iconBitmap = remember(key1 = appDrawerItem.app.packageName) {
-        appDrawerItem.icon.toBitmap().asImageBitmap()
-    }
-
     val textStartPadding = when (appDrawerIconViewType) {
         AppDrawerIconViewType.TEXT -> ITEM_START_PADDING + ((APP_ICON_SIZE + ICON_INNER_HORIZONTAL_PADDING) / 4)
         AppDrawerIconViewType.ICONS, AppDrawerIconViewType.COLORED -> ITEM_END_PADDING
     }
 
-    fun iconViewContent(): @Composable (() -> Unit)? {
-        return when (appDrawerIconViewType) {
-            AppDrawerIconViewType.TEXT -> null
-            AppDrawerIconViewType.ICONS -> {
-                @Composable {
+    val leadingContent: @Composable (() -> Unit)? = when (appDrawerIconViewType) {
+        AppDrawerIconViewType.TEXT -> null
+
+        AppDrawerIconViewType.ICONS -> {
+            @Composable {
+                // produceState: toBitmap() runs once on the IO dispatcher,
+                // not on the main thread, and never re-runs unless the icon
+                // Drawable instance changes (which it only does on icon-pack
+                // change, not on scroll). This eliminates the main-thread
+                // bitmap decode that caused frame drops during fast flings.
+                val iconBitmap by produceState<ImageBitmap?>(
+                    initialValue = null,
+                    key1 = appDrawerItem.app.packageName
+                ) {
+                    // Runs on the coroutine dispatcher of the surrounding
+                    // LaunchedEffect — off the main thread.
+                    value = appDrawerItem.icon.toBitmap().asImageBitmap()
+                }
+
+                iconBitmap?.let { bmp ->
                     Image(
-                        bitmap = iconBitmap,
+                        bitmap = bmp,
                         contentDescription = appDrawerItem.app.displayName,
                         modifier = Modifier
                             .padding(start = ITEM_START_PADDING)
                             .size(size = APP_ICON_SIZE)
                     )
-                }
+                } ?: Box(
+                    modifier = Modifier
+                        .padding(start = ITEM_START_PADDING)
+                        .size(size = APP_ICON_SIZE)
+                )
             }
-            AppDrawerIconViewType.COLORED -> {
-                @Composable {
-                    val appIconBasedColor = rememberAppColor(graphicsColor = appDrawerItem.color)
+        }
 
-                    Box(
-                        modifier = Modifier
-                            .padding(start = ITEM_START_PADDING)
-                            .size(size = APP_ICON_SIZE)
-                            .background(
-                                color = appIconBasedColor,
-                                shape = CircleShape
-                            )
-                    )
-                }
+        AppDrawerIconViewType.COLORED -> {
+            @Composable {
+                val appIconBasedColor = rememberAppColor(graphicsColor = appDrawerItem.color)
+                Box(
+                    modifier = Modifier
+                        .padding(start = ITEM_START_PADDING)
+                        .size(size = APP_ICON_SIZE)
+                        .background(color = appIconBasedColor, shape = CircleShape)
+                )
             }
         }
     }
 
     ListItem(
-        colors = ListItemDefaults.colors(
-            containerColor = Color.Transparent
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        modifier = modifier.combinedClickable(
+            onClick = { onClick(appDrawerItem) },
+            onLongClick = { onLongClick(appDrawerItem) }
         ),
-        modifier = Modifier
-            .combinedClickable(
-                onClick = { onClick(appDrawerItem) },
-                onLongClick = { onLongClick(appDrawerItem) }
-            ),
-        leadingContent = iconViewContent(),
+        leadingContent = leadingContent,
         headlineContent = {
             Text(
                 text = appDrawerItem.app.displayName,
