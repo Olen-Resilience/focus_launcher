@@ -116,7 +116,8 @@ kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-pl
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
 kotlinx-kover = { group = "org.jetbrains.kotlinx", name = "kover", version.ref = "kover" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
-sentry-gradlePlugin = { group = "io.sentry.android.gradle", name = "io.sentry.android.gradle.gradle.plugin", version.ref = "sentry-plugin" }
+# ✅ FIXED: Use the actual plugin artifact, not the marker
+sentry-gradlePlugin = { module = "io.sentry:sentry-android-gradle-plugin", version.ref = "sentry-plugin" }
 
 # Benchmark libs
 benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
