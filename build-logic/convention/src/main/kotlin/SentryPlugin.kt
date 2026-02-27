@@ -28,7 +28,7 @@ class SentryPlugin : Plugin<Project> {
             apply(libs.findPlugin("sentry").get().get().pluginId)
         }
 
-        // Read values with blank check – empty strings are treated as missing
+        // Read values – auth token is required for non‑dev builds
         val sentryDsn = readSentryValueOf(propertyKey = SENTRY_DSN_PROPERTY, envKey = SENTRY_DSN_ENV, required = false)
         val sentryAuthToken = readSentryValueOf(propertyKey = SENTRY_AUTH_TOKEN_PROPERTY, envKey = SENTRY_AUTH_TOKEN_ENV, required = true)
 
@@ -46,9 +46,16 @@ class SentryPlugin : Plugin<Project> {
 
             includeSourceContext.set(true)
             includeProguardMapping.set(true)
-            autoUploadProguardMapping.set(true)
             tracingInstrumentation.enabled.set(false)
             ignoredBuildTypes.set(setOf("debug"))
+
+            // Disable ProGuard mapping uploads for all dev variants
+            variants.all { variant ->
+                if (variant.name.contains("dev", ignoreCase = true)) {
+                    variant.autoUploadProguardMapping.set(false)
+                    logger.info("Sentry auto‑upload disabled for variant: ${variant.name}")
+                }
+            }
         }
     }
 
