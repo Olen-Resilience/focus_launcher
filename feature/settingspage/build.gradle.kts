@@ -13,6 +13,7 @@ dependencies {
     implementation(projects.feature.clock24)
     implementation(projects.feature.lunarcalendar)
     implementation(projects.feature.quoteforyou)
+    implementation(projects.core.lint)
 
     implementation(libs.kotlinx.collections.immutable)
 
