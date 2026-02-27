@@ -9,6 +9,7 @@ android {
 
 dependencies {
     implementation(projects.core.model)
+    implementation(projects.core.lint)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.runtime)
