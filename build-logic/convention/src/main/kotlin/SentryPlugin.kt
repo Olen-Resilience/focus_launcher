@@ -1,5 +1,6 @@
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import io.sentry.android.gradle.extensions.SentryPluginExtension
+import io.sentry.android.gradle.extensions.VariantExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -28,7 +29,7 @@ class SentryPlugin : Plugin<Project> {
             apply(libs.findPlugin("sentry").get().get().pluginId)
         }
 
-        // Read values – auth token is optional, default to empty string to avoid null
+        // Read values – default to empty string to avoid null
         val sentryDsn = readSentryValueOf(propertyKey = SENTRY_DSN_PROPERTY, envKey = SENTRY_DSN_ENV, default = "")
         val sentryAuthToken = readSentryValueOf(propertyKey = SENTRY_AUTH_TOKEN_PROPERTY, envKey = SENTRY_AUTH_TOKEN_ENV, default = "")
 
@@ -50,7 +51,7 @@ class SentryPlugin : Plugin<Project> {
             ignoredBuildTypes.set(setOf("debug"))
 
             // Disable ProGuard mapping uploads for all dev variants
-            variants.configureEach { variant ->
+            variants.all { variant: VariantExtension ->
                 if (variant.name.contains("dev", ignoreCase = true)) {
                     variant.autoUploadProguardMapping.set(false)
                     logger.info("Sentry auto‑upload disabled for variant: ${variant.name}")
