@@ -1,27 +1,62 @@
-package dev.mslalith.focuslauncher.core.common.extensions
+package dev.mslalith.focuslauncher.core.domain.extensions
 
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.util.Locale
+import android.content.pm.PackageManager
+import android.graphics.Color
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.toColor
+import androidx.palette.graphics.Palette
+import dev.mslalith.focuslauncher.core.launcherapps.providers.icons.IconProvider
+import dev.mslalith.focuslauncher.core.model.IconPackType
+import dev.mslalith.focuslauncher.core.model.app.App
+import dev.mslalith.focuslauncher.core.model.app.AppWithColor
+import dev.mslalith.focuslauncher.core.model.app.AppWithComponent
+import dev.mslalith.focuslauncher.core.model.app.AppWithIcon
+import dev.mslalith.focuslauncher.core.model.appdrawer.AppDrawerItem
 
-
-fun Int.to2Digit() = when {
-    this < 10 -> "0$this"
-    else -> this
+private fun AppWithIcon.extractIconColor(): Color? = try {
+    val appIconPalette = Palette.from(icon.toBitmap()).generate()
+    appIconPalette.dominantSwatch?.rgb?.toColor()
+} catch (ex: IllegalArgumentException) {
+    null
 }
 
-fun Double.asPercent(maxFractions: Int = 2) = limitDecimals(maxFractions = maxFractions) + "%"
-
-fun Double.limitDecimals(
-    maxFractions: Int = 2,
-    minFractions: Int = 2
-): String {
-    val fractionsPlaceholder = "#".repeat(n = maxFractions)
-    val decimalFormat = DecimalFormat("#.$fractionsPlaceholder", DecimalFormatSymbols(Locale.US)).apply {
-        minimumFractionDigits = minFractions
-        maximumFractionDigits = maxFractions
+context (IconProvider)
+fun List<AppWithComponent>.toAppWithIcons(iconPackType: IconPackType): List<AppWithIcon> = mapNotNull { appWithComponent ->
+    try {
+        AppWithIcon(
+            app = App(
+                name = appWithComponent.app.name,
+                displayName = appWithComponent.app.displayName,
+                packageName = appWithComponent.app.packageName,
+                isSystem = appWithComponent.app.isSystem
+            ),
+            icon = iconFor(
+                appWithComponent = appWithComponent,
+                iconPackType = iconPackType
+            )
+        )
+    } catch (e: PackageManager.NameNotFoundException) {
+        null
     }
-    return decimalFormat.format(this) ?: this.toString()
 }
 
-fun Char.isAlphabet() = Character.isLetter(this)
+fun List<App>.toAppsWithNoColor(): List<AppWithColor> = map { app ->
+    AppWithColor(
+        app = app,
+        color = null
+    )
+}
+
+fun List<AppWithIcon>.toAppsWithColor(): List<AppWithColor> = map { appWithIcon ->
+    AppWithColor(
+        app = appWithIcon.app,
+        color = appWithIcon.extractIconColor()
+    )
+}
+
+fun AppWithIcon.toFavoriteItem(isFavorite: Boolean): AppDrawerItem = AppDrawerItem(
+    app = app,
+    isFavorite = isFavorite,
+    icon = icon,
+    color = extractIconColor()
+)
