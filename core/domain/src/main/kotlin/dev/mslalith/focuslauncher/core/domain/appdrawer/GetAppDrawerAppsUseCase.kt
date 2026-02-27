@@ -16,10 +16,14 @@ class GetAppDrawerAppsUseCase @Inject constructor(
             allApps - hiddenApps.toSet()
         }.combine(flow = searchQueryFlow) { filteredApps, query ->
             when {
-                query.isNotEmpty() -> filteredApps.filter {
-                    it.displayName.startsWith(
-                        prefix = query,
-                        ignoreCase = true
+                query.isNotEmpty() -> {
+                    val normalizedQuery = query.trim().lowercase()
+                    filteredApps.filter {
+                        it.displayName.lowercase().contains(normalizedQuery)
+                    }.sortedWith(
+                        compareByDescending<App> {
+                            it.displayName.lowercase().startsWith(normalizedQuery)
+                        }.thenBy { it.displayName.lowercase() }
                     )
                 }
                 else -> filteredApps
