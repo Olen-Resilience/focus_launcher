@@ -23,8 +23,7 @@ android {
 dependencies {
     implementation(projects.core.model)
     implementation(projects.core.common)
-
-    implementation(libs.androidx.core.ktx)
+    implementation(projects.core.lint)
 
     implementation(libs.androidx.dataStore.core)
     implementation(libs.androidx.dataStore.preferences)
