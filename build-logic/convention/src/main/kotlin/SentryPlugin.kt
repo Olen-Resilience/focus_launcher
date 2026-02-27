@@ -13,10 +13,8 @@ class SentryPlugin : Plugin<Project> {
 
     private companion object {
         private const val SENTRY_PROPERTIES_FILE = "sentry.properties"
-
         private const val SENTRY_DSN_ENV = "SENTRY_DSN"
         private const val SENTRY_DSN_PROPERTY = "sentry.dsn"
-
         private const val SENTRY_AUTH_TOKEN_ENV = "SENTRY_AUTH_TOKEN"
         private const val SENTRY_AUTH_TOKEN_PROPERTY = "sentry.auth.token"
     }
@@ -29,9 +27,8 @@ class SentryPlugin : Plugin<Project> {
             apply(libs.findPlugin("sentry").get().get().pluginId)
         }
 
-        // Read values – default to empty string to avoid null
-        val sentryDsn = readSentryValueOf(propertyKey = SENTRY_DSN_PROPERTY, envKey = SENTRY_DSN_ENV, default = "")
-        val sentryAuthToken = readSentryValueOf(propertyKey = SENTRY_AUTH_TOKEN_PROPERTY, envKey = SENTRY_AUTH_TOKEN_ENV, default = "")
+        val sentryDsn = readSentryValueOf(SENTRY_DSN_PROPERTY, SENTRY_DSN_ENV, default = "")
+        val sentryAuthToken = readSentryValueOf(SENTRY_AUTH_TOKEN_PROPERTY, SENTRY_AUTH_TOKEN_ENV, default = "")
 
         extensions.configure<ApplicationAndroidComponentsExtension> {
             onVariants { variant ->
@@ -60,34 +57,25 @@ class SentryPlugin : Plugin<Project> {
         }
     }
 
-    /**
-     * Reads a value from environment variable or sentry.properties.
-     * Returns the default if no value is found.
-     */
     private fun Project.readSentryValueOf(
         propertyKey: String,
         envKey: String,
         default: String
     ): String {
-        // 1. Try environment variable (ignore blank)
         val envValue = providers.environmentVariable(envKey).orNull?.takeIf { it.isNotBlank() }
         if (envValue != null) return envValue
 
-        // 2. Fallback to sentry.properties
-        val propValue = readSentrySecret(key = propertyKey)
+        val propValue = readSentrySecret(propertyKey)
         if (propValue != null) return propValue
 
-        // 3. Return default
         return default
     }
 
     private fun Project.readSentrySecret(key: String): String? {
-        val secretPropertiesFile = rootProject.file(SENTRY_PROPERTIES_FILE)
-        if (!secretPropertiesFile.exists()) {
-            return null
-        }
+        val secretFile = rootProject.file(SENTRY_PROPERTIES_FILE)
+        if (!secretFile.exists()) return null
 
-        val localProperties = Properties().apply { load(FileInputStream(secretPropertiesFile)) }
-        return localProperties[key]?.toString()?.takeIf { it.isNotBlank() }
+        val props = Properties().apply { load(FileInputStream(secretFile)) }
+        return props[key]?.toString()?.takeIf { it.isNotBlank() }
     }
 }
