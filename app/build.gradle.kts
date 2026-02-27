@@ -100,6 +100,7 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.model)
     implementation(projects.core.domain)
+    implementation(projects.core.lint)
     implementation(projects.core.settings.sentry)
 
     implementation(projects.feature.theme)
