@@ -10,6 +10,6 @@ android {
 
 dependencies {
     implementation(projects.core.ui)
-
+    implementation(projects.core.lint)
     implementation(libs.kotlinx.collections.immutable)
 }
