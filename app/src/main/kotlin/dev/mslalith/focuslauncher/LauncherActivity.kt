@@ -41,16 +41,16 @@ class LauncherActivity : ComponentActivity() {
     @Inject
     lateinit var launcherThemePresenter: LauncherThemePresenter
 
-    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Log.e("LauncherActivity", "Coroutine error", throwable)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
+            val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+                Log.e("LauncherActivity", "Coroutine error", throwable)
+            }
+
             PackageActionListener { packageAction ->
                 lifecycleScope.launch(exceptionHandler) {
                     try {
