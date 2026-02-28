@@ -22,20 +22,25 @@ fun ProvideSystemUiController(
 ) {
     val systemUiController = rememberSystemUiController()
     CompositionLocalProvider(LocalSystemUiController provides systemUiController) {
-        content()
+        try {
+            content()
+        } catch (e: Exception) {
+            Log.e("ProvideSystemUiController", "Error in ProvideSystemUiController", e)
+        }
     }
 }
 
 @Composable
 private fun rememberSystemUiController(): SystemUiController {
     val view = LocalView.current
-    return try {
-        val window = (view.context as Activity).window
-        remember(window, view) {
+    val window = (view.context as Activity).window
+
+    return remember(window, view) {
+        try {
             SystemUiControllerImpl(window, view)
+        } catch (e: Exception) {
+            Log.e("rememberSystemUiController", "Error creating SystemUiController", e)
+            throw e
         }
-    } catch (e: Exception) {
-        Log.e("ProvideSystemUiController", "Failed to create SystemUiController", e)
-        SystemUiControllerImpl((view.context as Activity).window, view)
     }
 }
