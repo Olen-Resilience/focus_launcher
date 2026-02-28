@@ -22,8 +22,7 @@ fun PackageActionListener(
         val callback = object : LauncherApps.Callback() {
             override fun onPackageRemoved(packageName: String?, user: UserHandle?) {
                 try {
-                    packageName ?: return
-                    updatedOnAction(PackageAction.Removed(packageName = packageName))
+                    packageName?.let { updatedOnAction(PackageAction.Removed(packageName = it)) }
                 } catch (e: Exception) {
                     Log.e("PackageActionListener", "Error in onPackageRemoved", e)
                 }
@@ -31,8 +30,7 @@ fun PackageActionListener(
 
             override fun onPackageAdded(packageName: String?, user: UserHandle?) {
                 try {
-                    packageName ?: return
-                    updatedOnAction(PackageAction.Added(packageName = packageName))
+                    packageName?.let { updatedOnAction(PackageAction.Added(packageName = it)) }
                 } catch (e: Exception) {
                     Log.e("PackageActionListener", "Error in onPackageAdded", e)
                 }
@@ -40,8 +38,7 @@ fun PackageActionListener(
 
             override fun onPackageChanged(packageName: String?, user: UserHandle?) {
                 try {
-                    packageName ?: return
-                    updatedOnAction(PackageAction.Updated(packageName = packageName))
+                    packageName?.let { updatedOnAction(PackageAction.Updated(packageName = it)) }
                 } catch (e: Exception) {
                     Log.e("PackageActionListener", "Error in onPackageChanged", e)
                 }
