@@ -22,21 +22,16 @@ fun OnLifecycleEventChange(
             try {
                 updatedOnEvent(event)
             } catch (e: Exception) {
-                Log.e("OnLifecycleEventChange", "Error in lifecycle event observer", e)
+                Log.e("OnLifecycleEventChange", "Error in lifecycle event", e)
             }
         }
 
-        try {
-            lifecycle.addObserver(observer = observer)
-        } catch (e: Exception) {
-            Log.e("OnLifecycleEventChange", "Failed to add lifecycle observer", e)
-        }
-
+        lifecycle.addObserver(observer = observer)
         onDispose {
             try {
                 lifecycle.removeObserver(observer = observer)
             } catch (e: Exception) {
-                Log.e("OnLifecycleEventChange", "Failed to remove lifecycle observer", e)
+                Log.e("OnLifecycleEventChange", "Error removing lifecycle observer", e)
             }
         }
     }
