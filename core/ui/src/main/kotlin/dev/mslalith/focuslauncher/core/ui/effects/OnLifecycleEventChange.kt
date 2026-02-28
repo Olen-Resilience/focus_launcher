@@ -22,7 +22,7 @@ fun OnLifecycleEventChange(
             try {
                 updatedOnEvent(event)
             } catch (e: Exception) {
-                Log.e("OnLifecycleEventChange", "Error in lifecycle event", e)
+                Log.e("OnLifecycleEventChange", "Error in lifecycle event observer", e)
             }
         }
 
