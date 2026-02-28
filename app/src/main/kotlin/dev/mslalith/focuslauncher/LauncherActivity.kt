@@ -1,9 +1,15 @@
 package dev.mslalith.focuslauncher
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +29,7 @@ import dev.mslalith.focuslauncher.core.ui.effects.PackageActionListener
 import dev.mslalith.focuslauncher.core.ui.providers.ProvideSystemUiController
 import dev.mslalith.focuslauncher.feature.theme.LauncherTheme
 import dev.mslalith.focuslauncher.feature.theme.LauncherThemePresenter
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -45,8 +52,18 @@ class LauncherActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
+            val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+                Log.e("LauncherActivity", "Coroutine exception", throwable)
+            }
+
             PackageActionListener { packageAction ->
-                lifecycleScope.launch { packageActionUseCase(packageAction = packageAction) }
+                lifecycleScope.launch(exceptionHandler) {
+                    try {
+                        packageActionUseCase(packageAction = packageAction)
+                    } catch (e: Exception) {
+                        Log.e("LauncherActivity", "Failed to handle package action", e)
+                    }
+                }
             }
 
             val backStack = rememberSaveableBackStack(initialScreens = listOf(LauncherScreen))
