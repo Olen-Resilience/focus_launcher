@@ -26,12 +26,17 @@ fun OnLifecycleEventChange(
             }
         }
 
-        lifecycle.addObserver(observer = observer)
+        try {
+            lifecycle.addObserver(observer = observer)
+        } catch (e: Exception) {
+            Log.e("OnLifecycleEventChange", "Failed to add lifecycle observer", e)
+        }
+
         onDispose {
             try {
                 lifecycle.removeObserver(observer = observer)
             } catch (e: Exception) {
-                Log.e("OnLifecycleEventChange", "Error removing lifecycle observer", e)
+                Log.e("OnLifecycleEventChange", "Failed to remove lifecycle observer", e)
             }
         }
     }
