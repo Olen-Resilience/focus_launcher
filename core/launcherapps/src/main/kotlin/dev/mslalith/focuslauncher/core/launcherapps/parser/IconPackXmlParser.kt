@@ -16,7 +16,7 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 
 @IgnoreInKoverReport
-internal class IconPackXmlParser(
+class IconPackXmlParser(
     private val context: Context,
     private val iconPackPackageName: String
 ) {
