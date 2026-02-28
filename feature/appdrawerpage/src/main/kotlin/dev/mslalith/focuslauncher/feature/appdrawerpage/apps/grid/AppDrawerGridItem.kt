@@ -14,10 +14,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -38,20 +40,27 @@ internal fun AppDrawerGridItem(
     onClick: (AppDrawerItem) -> Unit,
     onLongClick: (AppDrawerItem) -> Unit
 ) {
-    val iconBitmap = remember(key1 = appDrawerItem.app.packageName) {
-        appDrawerItem.icon.toBitmap().asImageBitmap()
-    }
-
     @Composable
     fun IconViewContent() {
         when (appDrawerIconViewType) {
             AppDrawerIconViewType.TEXT -> Unit
+
             AppDrawerIconViewType.ICONS -> {
-                Image(
-                    bitmap = iconBitmap,
-                    contentDescription = appDrawerItem.app.displayName,
-                    modifier = Modifier.fillMaxSize()
-                )
+                // produceState: bitmap decode runs off the main thread
+                val iconBitmap by produceState<ImageBitmap?>(
+                    initialValue = null,
+                    key1 = appDrawerItem.app.packageName
+                ) {
+                    value = appDrawerItem.icon.toBitmap().asImageBitmap()
+                }
+
+                iconBitmap?.let { bmp ->
+                    Image(
+                        bitmap = bmp,
+                        contentDescription = appDrawerItem.app.displayName,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } ?: Box(modifier = Modifier.fillMaxSize())
             }
 
             AppDrawerIconViewType.COLORED -> {
