@@ -5,11 +5,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
@@ -46,16 +41,16 @@ class LauncherActivity : ComponentActivity() {
     @Inject
     lateinit var launcherThemePresenter: LauncherThemePresenter
 
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.e("LauncherActivity", "Coroutine error", throwable)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-                Log.e("LauncherActivity", "Coroutine exception", throwable)
-            }
-
             PackageActionListener { packageAction ->
                 lifecycleScope.launch(exceptionHandler) {
                     try {
