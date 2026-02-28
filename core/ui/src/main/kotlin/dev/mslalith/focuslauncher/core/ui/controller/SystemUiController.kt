@@ -1,6 +1,7 @@
 package dev.mslalith.focuslauncher.core.ui.controller
 
 import android.os.Build
+import android.util.Log
 import android.view.View
 import android.view.Window
 import androidx.compose.ui.graphics.Color
@@ -41,30 +42,58 @@ class SystemUiControllerImpl(
 
     private var statusBarDarkContentEnabled: Boolean
         get() = windowInsetsController.isAppearanceLightStatusBars
-        set(value) { windowInsetsController.isAppearanceLightStatusBars = value }
+        set(value) {
+            try {
+                windowInsetsController.isAppearanceLightStatusBars = value
+            } catch (e: Exception) {
+                Log.e("SystemUiController", "Failed to set status bar appearance", e)
+            }
+        }
 
     private var navigationBarDarkContentEnabled: Boolean
         get() = windowInsetsController.isAppearanceLightNavigationBars
-        set(value) { windowInsetsController.isAppearanceLightNavigationBars = value }
+        set(value) {
+            try {
+                windowInsetsController.isAppearanceLightNavigationBars = value
+            } catch (e: Exception) {
+                Log.e("SystemUiController", "Failed to set navigation bar appearance", e)
+            }
+        }
 
     private var isNavigationBarContrastEnforced: Boolean
         get() = Build.VERSION.SDK_INT >= 29 && window.isNavigationBarContrastEnforced
         set(value) {
-            if (Build.VERSION.SDK_INT >= 29) window.isNavigationBarContrastEnforced = value
+            if (Build.VERSION.SDK_INT >= 29) {
+                try {
+                    window.isNavigationBarContrastEnforced = value
+                } catch (e: Exception) {
+                    Log.e("SystemUiController", "Failed to set navigation bar contrast", e)
+                }
+            }
         }
 
 
-    override fun showStatusBars() = windowInsetsController.show(WindowInsetsCompat.Type.statusBars())
-    override fun hideStatusBars() = windowInsetsController.hide(WindowInsetsCompat.Type.statusBars())
+    override fun showStatusBars() {
+        try {
+            windowInsetsController.show(WindowInsetsCompat.Type.statusBars())
+        } catch (e: Exception) {
+            Log.e("SystemUiController", "Failed to show status bars", e)
+        }
+    }
+
+    override fun hideStatusBars() {
+        try {
+            windowInsetsController.hide(WindowInsetsCompat.Type.statusBars())
+        } catch (e: Exception) {
+            Log.e("SystemUiController", "Failed to hide status bars", e)
+        }
+    }
 
     override fun setStatusBarColor(color: Color, darkIcons: Boolean) {
         statusBarDarkContentEnabled = darkIcons
 
         window.statusBarColor = when {
             darkIcons && !statusBarDarkContentEnabled -> {
-                // If we're set to use dark icons, but our windowInsetsController call didn't
-                // succeed (usually due to API level), we instead transform the color to maintain
-                // contrast
                 BlackScrimmed(color)
             }
             else -> color
@@ -80,9 +109,6 @@ class SystemUiControllerImpl(
 
         window.navigationBarColor = when {
             darkIcons && !navigationBarDarkContentEnabled -> {
-                // If we're set to use dark icons, but our windowInsetsController call didn't
-                // succeed (usually due to API level), we instead transform the color to maintain
-                // contrast
                 BlackScrimmed(color)
             }
             else -> color
