@@ -1,7 +1,6 @@
 package dev.mslalith.focuslauncher
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
@@ -47,18 +46,12 @@ class LauncherActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-                Log.e("LauncherActivity", "Coroutine error", throwable)
+            val exceptionHandler = CoroutineExceptionHandler { _, e ->
+                e.printStackTrace()
             }
 
             PackageActionListener { packageAction ->
-                lifecycleScope.launch(exceptionHandler) {
-                    try {
-                        packageActionUseCase(packageAction = packageAction)
-                    } catch (e: Exception) {
-                        Log.e("LauncherActivity", "Failed to handle package action", e)
-                    }
-                }
+                lifecycleScope.launch(exceptionHandler) { packageActionUseCase(packageAction = packageAction) }
             }
 
             val backStack = rememberSaveableBackStack(initialScreens = listOf(LauncherScreen))
