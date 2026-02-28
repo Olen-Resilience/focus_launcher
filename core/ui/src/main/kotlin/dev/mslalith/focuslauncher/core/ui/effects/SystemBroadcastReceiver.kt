@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -29,17 +30,32 @@ fun SystemBroadcastReceiver(
 
         val broadcast = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                val action = intent?.action ?: return
-                if (action == systemAction) currentOnSystemEvent(intent)
+                try {
+                    val action = intent?.action ?: return
+                    if (action == systemAction) currentOnSystemEvent(intent)
+                } catch (e: Exception) {
+                    Log.e("SystemBroadcastReceiver", "Error in onReceive", e)
+                }
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.registerReceiver(broadcast, intentFilter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            context.registerReceiver(broadcast, intentFilter)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.registerReceiver(broadcast, intentFilter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                context.registerReceiver(broadcast, intentFilter)
+            }
+        } catch (e: Exception) {
+            Log.e("SystemBroadcastReceiver", "Failed to register receiver", e)
         }
-        onDispose { context.unregisterReceiver(broadcast) }
+
+        onDispose {
+            try {
+                context.unregisterReceiver(broadcast)
+            } catch (e: Exception) {
+                Log.e("SystemBroadcastReceiver", "Failed to unregister receiver", e)
+            }
+        }
     }
 }
 
@@ -61,16 +77,31 @@ fun SystemBroadcastReceiver(
 
         val broadcast = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                val action = intent?.action ?: return
-                if (systemActions.contains(action)) currentOnSystemEvent(intent)
+                try {
+                    val action = intent?.action ?: return
+                    if (systemActions.contains(action)) currentOnSystemEvent(intent)
+                } catch (e: Exception) {
+                    Log.e("SystemBroadcastReceiver", "Error in onReceive", e)
+                }
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.registerReceiver(broadcast, intentFilter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            context.registerReceiver(broadcast, intentFilter)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.registerReceiver(broadcast, intentFilter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                context.registerReceiver(broadcast, intentFilter)
+            }
+        } catch (e: Exception) {
+            Log.e("SystemBroadcastReceiver", "Failed to register receiver", e)
         }
-        onDispose { context.unregisterReceiver(broadcast) }
+
+        onDispose {
+            try {
+                context.unregisterReceiver(broadcast)
+            } catch (e: Exception) {
+                Log.e("SystemBroadcastReceiver", "Failed to unregister receiver", e)
+            }
+        }
     }
 }

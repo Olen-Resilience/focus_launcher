@@ -1,5 +1,6 @@
 package dev.mslalith.focuslauncher.core.ui.effects
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -18,10 +19,25 @@ fun OnLifecycleEventChange(
     DisposableEffect(key1 = lifecycleOwner) {
         val lifecycle = lifecycleOwner.lifecycle
         val observer = LifecycleEventObserver { _, event ->
-            updatedOnEvent(event)
+            try {
+                updatedOnEvent(event)
+            } catch (e: Exception) {
+                Log.e("OnLifecycleEventChange", "Error in lifecycle event", e)
+            }
         }
 
-        lifecycle.addObserver(observer = observer)
-        onDispose { lifecycle.removeObserver(observer = observer) }
+        try {
+            lifecycle.addObserver(observer = observer)
+        } catch (e: Exception) {
+            Log.e("OnLifecycleEventChange", "Failed to add lifecycle observer", e)
+        }
+
+        onDispose {
+            try {
+                lifecycle.removeObserver(observer = observer)
+            } catch (e: Exception) {
+                Log.e("OnLifecycleEventChange", "Failed to remove lifecycle observer", e)
+            }
+        }
     }
 }

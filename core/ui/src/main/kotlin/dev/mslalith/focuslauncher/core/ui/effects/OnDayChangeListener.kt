@@ -1,6 +1,7 @@
 package dev.mslalith.focuslauncher.core.ui.effects
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -29,10 +30,14 @@ fun OnDayChangeListener(
             Intent.ACTION_DATE_CHANGED
         ),
         onSystemEvent = {
-            val currentDate = Date()
-            if (!isSameDay(currentDate = currentDate)) {
-                updatedOnDayChange()
-                lastDate = currentDate
+            try {
+                val currentDate = Date()
+                if (!isSameDay(currentDate = currentDate)) {
+                    updatedOnDayChange()
+                    lastDate = currentDate
+                }
+            } catch (e: Exception) {
+                Log.e("OnDayChangeListener", "Error in onSystemEvent", e)
             }
         }
     )
