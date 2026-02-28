@@ -1,6 +1,7 @@
 package dev.mslalith.focuslauncher.core.ui.providers
 
 import android.app.Activity
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
@@ -28,9 +29,13 @@ fun ProvideSystemUiController(
 @Composable
 private fun rememberSystemUiController(): SystemUiController {
     val view = LocalView.current
-    val window = (view.context as Activity).window
-
-    return remember(window, view) {
-        SystemUiControllerImpl(window, view)
+    return try {
+        val window = (view.context as Activity).window
+        remember(window, view) {
+            SystemUiControllerImpl(window, view)
+        }
+    } catch (e: Exception) {
+        Log.e("ProvideSystemUiController", "Failed to create SystemUiController", e)
+        SystemUiControllerImpl((view.context as Activity).window, view)
     }
 }
