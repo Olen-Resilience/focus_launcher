@@ -37,7 +37,7 @@ fun OnDayChangeListener(
                     lastDate = currentDate
                 }
             } catch (e: Exception) {
-                Log.e("OnDayChangeListener", "Error in day change listener", e)
+                Log.e("OnDayChangeListener", "Error in onSystemEvent", e)
             }
         }
     )
