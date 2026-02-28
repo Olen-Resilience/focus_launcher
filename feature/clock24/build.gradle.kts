@@ -9,6 +9,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.lint)
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.collections.immutable)
 }
