@@ -37,6 +37,7 @@ jobs:
           rm -rf app/build
           rm -rf .gradle
           rm -rf ~/.gradle/caches/build-cache-1
+          rm -rf ~/.gradle/caches  # ADDED: Full cache clean
 
       # WORKAROUND: Create a script to delete KSP generated files before they conflict
       - name: Create KSP cleanup script
