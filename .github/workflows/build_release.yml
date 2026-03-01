@@ -31,6 +31,12 @@ jobs:
             -storepass android -keypass android \
             -dname "CN=Android Debug,O=Android,C=US"
 
+      # FIX: Clean KSP generated files to prevent FileAlreadyExistsException
+      - name: Clean KSP generated files
+        run: |
+          rm -rf app/build/generated/ksp
+          rm -rf */build/generated/ksp
+
       - name: Build Release APK
         run: ./gradlew clean assembleDevRelease --no-daemon --no-build-cache
         env:
