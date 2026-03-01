@@ -37,10 +37,34 @@ jobs:
           rm -rf app/build
           rm -rf .gradle
           rm -rf ~/.gradle/caches/build-cache-1
-          ./gradlew clean
+
+      # WORKAROUND: Create a script to delete KSP generated files before they conflict
+      - name: Create KSP cleanup script
+        run: |
+          mkdir -p .github/scripts
+          cat > .github/scripts/ksp-clean.sh << 'EOF'
+          #!/bin/bash
+          # Delete KSP generated files to prevent FileAlreadyExistsException
+          find . -path "*/build/generated/ksp/*/java/byRounds/*" -name "*.java" -delete 2>/dev/null || true
+          find . -path "*/build/generated/ksp/*" -name "LauncherActivity_GeneratedInjector.java" -delete 2>/dev/null || true
+          EOF
+          chmod +x .github/scripts/ksp-clean.sh
 
       - name: Build Release APK
-        run: ./gradlew assembleDevRelease --no-daemon --no-build-cache
+        run: |
+          # Run clean first
+          ./gradlew clean --no-daemon
+          # Run build with KSP file deletion workaround
+          while ! ./gradlew assembleDevRelease --no-daemon --no-build-cache 2>&1; do
+            echo "Build failed, cleaning KSP files and retrying..."
+            .github/scripts/ksp-clean.sh
+            # Check if it's the FileAlreadyExistsException error
+            if grep -q "FileAlreadyExistsException" /tmp/build.log 2>/dev/null; then
+              continue
+            else
+              exit 1
+            fi
+          done
         env:
           SENTRY_DSN: 'https://public_key@example.com/project_id'
           SENTRY_AUTH_TOKEN: ''
