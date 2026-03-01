@@ -1,31 +1,78 @@
 package dev.mslalith.focuslauncher
 
-import android.app.Application
-import androidx.lifecycle.ProcessLifecycleOwner
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.material3.Surface
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
-import dagger.hilt.android.HiltAndroidApp
+import com.slack.circuit.backstack.rememberSaveableBackStack
+import com.slack.circuit.foundation.Circuit
+import com.slack.circuit.foundation.CircuitCompositionLocals
+import com.slack.circuit.foundation.NavigableCircuitContent
+import com.slack.circuit.foundation.rememberCircuitNavigator
+import com.slack.circuit.overlay.ContentWithOverlays
+import dagger.hilt.android.AndroidEntryPoint
+import dev.mslalith.focuslauncher.core.domain.PackageActionUseCase
 import dev.mslalith.focuslauncher.core.lint.kover.IgnoreInKoverReport
-import dev.mslalith.focuslauncher.core.settings.sentry.SentrySettings
-import kotlinx.coroutines.flow.first
+import dev.mslalith.focuslauncher.core.model.BUILD_FLAVOR
+import dev.mslalith.focuslauncher.core.model.BuildFlavor
+import dev.mslalith.focuslauncher.core.screens.LauncherScreen
+import dev.mslalith.focuslauncher.core.ui.effects.PackageActionListener
+import dev.mslalith.focuslauncher.core.ui.providers.ProvideSystemUiController
+import dev.mslalith.focuslauncher.feature.theme.LauncherTheme
+import dev.mslalith.focuslauncher.feature.theme.LauncherThemePresenter
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltAndroidApp
+@AndroidEntryPoint
 @IgnoreInKoverReport
-class FocusLauncherApp : Application() {
+class LauncherActivity : ComponentActivity() {
 
     @Inject
-    lateinit var sentrySettings: SentrySettings
+    lateinit var packageActionUseCase: PackageActionUseCase
 
-    override fun onCreate() {
-        super.onCreate()
+    @Inject
+    lateinit var circuit: Circuit
 
-        setupSentry()
-    }
+    @Inject
+    lateinit var launcherThemePresenter: LauncherThemePresenter
 
-    private fun setupSentry() = with(sentrySettings) {
-        ProcessLifecycleOwner.get().lifecycleScope.launch {
-            if (isEnabled.first()) enableSentry() else disableSentry()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
+        super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // ✅ FIX: Move global state assignment OUT of composition
+        BUILD_FLAVOR = BuildFlavor.fromId(id = BuildConfig.FLAVOR)
+
+        setContent {
+            PackageActionListener { packageAction ->
+                lifecycleScope.launch { packageActionUseCase(packageAction = packageAction) }
+            }
+
+            val backStack = rememberSaveableBackStack(initialScreens = listOf(LauncherScreen))
+            val navigator = rememberCircuitNavigator(backStack = backStack)
+
+            ProvideSystemUiController {
+                // ✅ FIX: CircuitCompositionLocals wraps LauncherTheme so that
+                // launcherThemePresenter.present() has access to LocalRetainedStateRegistry
+                CircuitCompositionLocals(circuit = circuit) {
+                    LauncherTheme(
+                        currentTheme = launcherThemePresenter.present().theme
+                    ) {
+                        Surface {
+                            ContentWithOverlays {
+                                NavigableCircuitContent(
+                                    navigator = navigator,
+                                    backStack = backStack
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
