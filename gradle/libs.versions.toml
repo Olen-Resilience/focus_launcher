@@ -23,7 +23,7 @@ baselineprofile = "1.2.3"
 benchmarkMacroJunit4 = "1.2.3"
 detekt = "1.23.5"
 espressoCore = "3.5.1"
-hilt = "2.51"
+hilt = "2.51.1"
 hiltCompiler = "1.2.0"
 junit4 = "4.13.2"
 kotlin = "1.9.22"
@@ -45,96 +45,3 @@ suncalc = "3.9"
 truth = "1.4.2"
 turbine = "1.0.0"
 uiautomator = "2.3.0"
-
-[libraries]
-androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
-androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation" }
-androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
-androidx-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "androidxCoreTesting" }
-androidx-dataStore-core = { group = "androidx.datastore", name = "datastore", version.ref = "androidxDataStore" }
-androidx-dataStore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDataStore" }
-androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
-androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "androidxLifecycle" }
-androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
-androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "androidxPalette" }
-androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidxSplashScreen" }
-androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
-androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
-androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
-androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
-androidx-compose-ui-test = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-compose-ui-testManifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
-androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
-androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestJunit" }
-androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
-
-# Circuit
-circuit-foundation = { module = "com.slack.circuit:circuit-foundation", version.ref = "circuit" }
-circuit-runtime = { module = "com.slack.circuit:circuit-runtime", version.ref = "circuit" }
-circuit-overlay = { module = "com.slack.circuit:circuit-overlay", version.ref = "circuit" }
-circuit-codegenAnnotations = { module = "com.slack.circuit:circuit-codegen-annotations", version.ref = "circuit" }
-circuit-codegen = { module = "com.slack.circuit:circuit-codegen", version.ref = "circuit" }
-circuit-test = { module = "com.slack.circuit:circuit-test", version.ref = "circuit" }
-
-detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
-hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
-hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltCompiler" }
-junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
-kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinxCollectionImmutable" }
-kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
-kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
-kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
-kotlinx-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
-ktor-client-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktorClient" }
-ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktorClient" }
-ktor-client-contentNegotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktorClient" }
-ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktorClient" }
-ktor-serialization = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktorClient" }
-mockk = { group = "io.mockk", name="mockk", version.ref = "mockk" }
-osmdroid = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
-reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
-robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
-suncalc = { group = "org.shredzone.commons", name = "commons-suncalc", version.ref = "suncalc" }
-
-sentry-bom = { module = "io.sentry:sentry-bom", version.ref = "sentry" }
-sentry-android-core = { module = "io.sentry:sentry-android-core" }
-
-truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
-turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
-
-# Dependencies of the included build-logic
-android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
-hilt-gradlePlugin = { group = "com.google.dagger", name = "hilt-android-gradle-plugin", version.ref = "hilt" }
-kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
-kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
-kotlinx-kover = { group = "org.jetbrains.kotlinx", name = "kover", version.ref = "kover" }
-ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
-# ✅ FIXED: Use the actual plugin artifact, not the marker
-sentry-gradlePlugin = { module = "io.sentry:sentry-android-gradle-plugin", version.ref = "sentry-plugin" }
-
-# Benchmark libs
-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-androidx-profile-installer = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "androidxProfileInstaller" }
-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
-
-[plugins]
-android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
-android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
-android-test = { id = "com.android.test", version.ref = "androidTest" }
-baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-kotlinx-kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-sentry = { id = "io.sentry.android.gradle", version.ref = "sentry-plugin" }
