@@ -54,7 +54,7 @@ jobs:
       - name: Build Release APK
         run: |
           # Run clean first
-          ./gradlew clean --no-daemon
+          ./gradlew --no-daemon
           # Run build with KSP file deletion workaround
           while ! ./gradlew assembleDevRelease --no-daemon --no-build-cache 2>&1; do
             echo "Build failed, cleaning KSP files and retrying..."
