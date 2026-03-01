@@ -31,14 +31,15 @@ jobs:
             -storepass android -keypass android \
             -dname "CN=Android Debug,O=Android,C=US"
 
-      # FIX: Clean KSP generated files to prevent FileAlreadyExistsException
-      - name: Clean KSP generated files
+      # FIX: Thorough cleanup before build to prevent KSP FileAlreadyExistsException
+      - name: Clean build directories
         run: |
-          rm -rf app/build/generated/ksp
-          rm -rf */build/generated/ksp
+          rm -rf app/build
+          rm -rf .gradle
+          ./gradlew clean
 
       - name: Build Release APK
-        run: ./gradlew clean assembleDevRelease --no-daemon --no-build-cache
+        run: ./gradlew assembleDevRelease --no-daemon --no-build-cache --rerun-tasks
         env:
           SENTRY_DSN: 'https://public_key@example.com/project_id'
           SENTRY_AUTH_TOKEN: ''
