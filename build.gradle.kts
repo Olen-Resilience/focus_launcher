@@ -1,49 +1,69 @@
-apply(from = "./buildScripts/install-git-hooks.gradle.kts")
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-plugins {
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.kotlin.parcelize) apply false
-    alias(libs.plugins.hilt) apply false
-    alias(libs.plugins.kotlin.serialization) apply false
-    alias(libs.plugins.ksp) apply false
-    alias(libs.plugins.kotlinx.kover) apply false
-    alias(libs.plugins.detekt)
-    alias(libs.plugins.android.test) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.baselineprofile) apply false
-    alias(libs.plugins.sentry) apply false
+pluginManagement {
+    includeBuild("build-logic")
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
 
-allprojects {
-    apply(plugin = "io.gitlab.arturbosch.detekt")
-}
-
-detekt {
-    toolVersion = libs.versions.detekt.get()
-    config.from(files("config/detekt/detekt.yml"))
-    buildUponDefaultConfig = true
-}
-
-setupTestLogging()
-
-fun Project.setupTestLogging() {
-    for (sub in subprojects) {
-        sub.tasks.withType<Test> {
-            testLogging {
-                events("standardOut")
-                showStandardStreams = true
-            }
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+    
+    // ADD THIS BLOCK - defines the version catalog for root project
+    versionCatalogs {
+        create("libs") {
+            from(files("gradle/libs.versions.toml"))
         }
     }
 }
 
-tasks.register("clean", Delete::class) {
-    delete(rootProject.layout.buildDirectory)
-}
-
-// Exclude the NDK from the Sentry Android SDK as we don't use it
-subprojects {
-    configurations.configureEach {
-        exclude(group = "io.sentry", module = "sentry-android-ndk")
+buildCache {
+    local {
+        isEnabled = true
+        directory = File(rootDir, "build-cache")
+        removeUnusedEntriesAfterDays = 30
     }
 }
+
+rootProject.name = "FocusLauncher"
+include(
+    ":app",
+    ":baselineprofile",
+    ":core:common",
+    ":core:model",
+    ":core:screens",
+    ":core:circuitoverlay",
+    ":core:domain",
+    ":core:data",
+    ":core:data-test",
+    ":core:ui",
+    ":core:resources",
+    ":core:launcherapps",
+    ":core:lint",
+    ":core:settings:sentry",
+    ":core:testing",
+    ":core:testing-compose",
+    ":core:testing-circuit",
+    ":screens:launcher",
+    ":screens:editfavorites",
+    ":screens:hideapps",
+    ":screens:currentplace",
+    ":screens:iconpack",
+    ":screens:about",
+    ":screens:developer",
+    ":feature:homepage",
+    ":feature:settingspage",
+    ":feature:appdrawerpage",
+    ":feature:clock24",
+    ":feature:lunarcalendar",
+    ":feature:quoteforyou",
+    ":feature:favorites",
+    ":feature:theme"
+)
