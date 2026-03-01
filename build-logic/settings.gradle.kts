@@ -3,11 +3,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
     }
-    versionCatalogs {
-        create("libs") {
-            from(files("../gradle/libs.versions.toml"))
-        }
-    }
+    // REMOVED: versionCatalogs block - root project already defines it
 }
 
 rootProject.name = "build-logic"
