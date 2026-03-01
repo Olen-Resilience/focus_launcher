@@ -32,7 +32,7 @@ jobs:
             -dname "CN=Android Debug,O=Android,C=US"
 
       - name: Build Release APK
-        run: ./gradlew clean assembleDevRelease --no-daemon
+        run: ./gradlew clean assembleDevRelease --no-daemon --no-build-cache
         env:
           SENTRY_DSN: 'https://public_key@example.com/project_id'
           SENTRY_AUTH_TOKEN: ''
