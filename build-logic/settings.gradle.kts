@@ -3,7 +3,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
     }
-    // NO versionCatalogs here - removed completely
+    // NOTHING ELSE HERE - no versionCatalogs!
 }
 
 rootProject.name = "build-logic"
