@@ -1,69 +1,13 @@
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.parcelize) apply false
+    alias(libs.plugins.hilt) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.kotlinx.kover) apply false
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.android.test) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.baselineprofile) apply false
+    alias(libs.plugins.sentry) apply false
 }
-
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-    
-    // ADD THIS BLOCK - defines the version catalog for root project
-    versionCatalogs {
-        create("libs") {
-            from(files("gradle/libs.versions.toml"))
-        }
-    }
-}
-
-buildCache {
-    local {
-        isEnabled = true
-        directory = File(rootDir, "build-cache")
-        removeUnusedEntriesAfterDays = 30
-    }
-}
-
-rootProject.name = "FocusLauncher"
-include(
-    ":app",
-    ":baselineprofile",
-    ":core:common",
-    ":core:model",
-    ":core:screens",
-    ":core:circuitoverlay",
-    ":core:domain",
-    ":core:data",
-    ":core:data-test",
-    ":core:ui",
-    ":core:resources",
-    ":core:launcherapps",
-    ":core:lint",
-    ":core:settings:sentry",
-    ":core:testing",
-    ":core:testing-compose",
-    ":core:testing-circuit",
-    ":screens:launcher",
-    ":screens:editfavorites",
-    ":screens:hideapps",
-    ":screens:currentplace",
-    ":screens:iconpack",
-    ":screens:about",
-    ":screens:developer",
-    ":feature:homepage",
-    ":feature:settingspage",
-    ":feature:appdrawerpage",
-    ":feature:clock24",
-    ":feature:lunarcalendar",
-    ":feature:quoteforyou",
-    ":feature:favorites",
-    ":feature:theme"
-)
