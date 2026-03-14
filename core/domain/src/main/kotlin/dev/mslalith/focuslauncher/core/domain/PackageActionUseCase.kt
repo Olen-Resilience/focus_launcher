@@ -20,22 +20,34 @@ class PackageActionUseCase @Inject constructor(
     suspend operator fun invoke(packageAction: PackageAction) = onPackageAction(packageAction = packageAction)
 
     private suspend fun onPackageAction(packageAction: PackageAction) = withContext(context = appCoroutineDispatcher.io) {
-        when (packageAction) {
-            is PackageAction.Added -> launcherAppsManager.loadApp(packageName = packageAction.packageName)?.let { handleAppInstall(app = it.app) }
-            is PackageAction.Updated -> launcherAppsManager.loadApp(packageName = packageAction.packageName)?.let { handleAppInstall(app = it.app) }
-            is PackageAction.Removed -> handleAppUninstall(packageName = packageAction.packageName)
+        try {
+            when (packageAction) {
+                is PackageAction.Added -> launcherAppsManager.loadApp(packageName = packageAction.packageName)?.let { handleAppInstall(app = it.app) }
+                is PackageAction.Updated -> launcherAppsManager.loadApp(packageName = packageAction.packageName)?.let { handleAppInstall(app = it.app) }
+                is PackageAction.Removed -> handleAppUninstall(packageName = packageAction.packageName)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
     private suspend fun handleAppInstall(app: App) {
-        appDrawerRepo.addApp(app = app)
+        try {
+            appDrawerRepo.addApp(app = app)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private suspend fun handleAppUninstall(packageName: String) {
-        appDrawerRepo.getAppBy(packageName = packageName)?.let { app ->
-            favoritesRepo.removeFromFavorites(packageName = app.packageName)
-            hiddenAppsRepo.removeFromHiddenApps(packageName = app.packageName)
-            appDrawerRepo.removeApp(app = app)
+        try {
+            appDrawerRepo.getAppBy(packageName = packageName)?.let { app ->
+                favoritesRepo.removeFromFavorites(packageName = app.packageName)
+                hiddenAppsRepo.removeFromHiddenApps(packageName = app.packageName)
+                appDrawerRepo.removeApp(app = app)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

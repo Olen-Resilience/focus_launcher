@@ -4,6 +4,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import dev.mslalith.focuslauncher.core.model.Theme
 import dev.mslalith.focuslauncher.core.ui.controller.setSystemBarsColor
 import dev.mslalith.focuslauncher.core.ui.providers.LocalSystemUiController
@@ -18,15 +20,19 @@ fun LauncherTheme(
     content: @Composable () -> Unit
 ) {
     val systemUiController = LocalSystemUiController.current
-
     val colorScheme = when (currentTheme) {
         Theme.NOT_WHITE -> lightColors
         Theme.SAID_DARK -> darkColors
         Theme.FOLLOW_SYSTEM -> if (useDarkTheme) darkColors else lightColors
     }
 
-    LaunchedEffect(key1 = systemUiController, key2 = colorScheme) {
-        systemUiController.setSystemBarsColor(color = colorScheme.surface)
+    val currentColorScheme by rememberUpdatedState(newValue = colorScheme)
+    LaunchedEffect(key1 = systemUiController, key2 = currentColorScheme) {
+        try {
+            systemUiController.setSystemBarsColor(color = currentColorScheme.surface)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     MaterialTheme(

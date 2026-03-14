@@ -2,6 +2,7 @@ package dev.mslalith.focuslauncher.core.ui.effects
 
 import android.content.pm.LauncherApps
 import android.os.UserHandle
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -20,26 +21,45 @@ fun PackageActionListener(
         val launcherApps = context.getSystemService(LauncherApps::class.java)
         val callback = object : LauncherApps.Callback() {
             override fun onPackageRemoved(packageName: String?, user: UserHandle?) {
-                packageName ?: return
-                updatedOnAction(PackageAction.Removed(packageName = packageName))
+                try {
+                    packageName?.let { updatedOnAction(PackageAction.Removed(packageName = it)) }
+                } catch (e: Exception) {
+                    Log.e("PackageActionListener", "Error in onPackageRemoved", e)
+                }
             }
 
             override fun onPackageAdded(packageName: String?, user: UserHandle?) {
-                packageName ?: return
-                updatedOnAction(PackageAction.Added(packageName = packageName))
+                try {
+                    packageName?.let { updatedOnAction(PackageAction.Added(packageName = it)) }
+                } catch (e: Exception) {
+                    Log.e("PackageActionListener", "Error in onPackageAdded", e)
+                }
             }
 
             override fun onPackageChanged(packageName: String?, user: UserHandle?) {
-                packageName ?: return
-                updatedOnAction(PackageAction.Updated(packageName = packageName))
+                try {
+                    packageName?.let { updatedOnAction(PackageAction.Updated(packageName = it)) }
+                } catch (e: Exception) {
+                    Log.e("PackageActionListener", "Error in onPackageChanged", e)
+                }
             }
 
             override fun onPackagesAvailable(packageNames: Array<out String>?, user: UserHandle?, replacing: Boolean) = Unit
             override fun onPackagesUnavailable(packageNames: Array<out String>?, user: UserHandle?, replacing: Boolean) = Unit
         }
 
-        launcherApps.registerCallback(callback)
+        try {
+            launcherApps.registerCallback(callback)
+        } catch (e: Exception) {
+            Log.e("PackageActionListener", "Failed to register callback", e)
+        }
 
-        onDispose { launcherApps.unregisterCallback(callback) }
+        onDispose {
+            try {
+                launcherApps.unregisterCallback(callback)
+            } catch (e: Exception) {
+                Log.e("PackageActionListener", "Failed to unregister callback", e)
+            }
+        }
     }
 }

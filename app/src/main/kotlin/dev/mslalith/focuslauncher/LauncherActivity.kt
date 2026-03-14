@@ -23,6 +23,7 @@ import dev.mslalith.focuslauncher.core.ui.effects.PackageActionListener
 import dev.mslalith.focuslauncher.core.ui.providers.ProvideSystemUiController
 import dev.mslalith.focuslauncher.feature.theme.LauncherTheme
 import dev.mslalith.focuslauncher.feature.theme.LauncherThemePresenter
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -45,8 +46,12 @@ class LauncherActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
+            val exceptionHandler = CoroutineExceptionHandler { _, e ->
+                e.printStackTrace()
+            }
+
             PackageActionListener { packageAction ->
-                lifecycleScope.launch { packageActionUseCase(packageAction = packageAction) }
+                lifecycleScope.launch(exceptionHandler) { packageActionUseCase(packageAction = packageAction) }
             }
 
             val backStack = rememberSaveableBackStack(initialScreens = listOf(LauncherScreen))
